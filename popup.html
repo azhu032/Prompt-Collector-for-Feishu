@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>提示词采集器</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="panel">
+      <header class="topbar">
+        <div class="brand">
+          <p class="eyebrow">Feishu Base</p>
+          <h1 data-i18n="appTitle">提示词采集器</h1>
+        </div>
+        <div class="header-actions">
+          <button id="pinPanel" class="tool-button" data-i18n-title="pinOpenTitle" title="打开常驻侧边栏">侧栏</button>
+          <button id="captureAll" class="tool-button" data-i18n="captureShort" data-i18n-title="captureAllTitle" title="框选网页文字并填入">框选</button>
+          <button id="openOptions" class="tool-button" data-i18n="settings" data-i18n-title="settings" title="设置">设置</button>
+        </div>
+      </header>
+
+      <section id="status" class="status" data-i18n="statusReading">正在读取当前页面...</section>
+
+      <section class="form-stack">
+        <label class="field">
+          <span class="label-row">
+            <span data-i18n="titleLabel">标题</span>
+            <button class="mini-button" data-capture="title" data-i18n="captureFill" data-i18n-title="captureTitleTitle" title="框选网页文字填入标题">框选填入</button>
+          </span>
+          <input id="title" type="text" autocomplete="off">
+        </label>
+
+        <label class="field">
+          <span class="label-row">
+            <span data-i18n="promptLabel">提示词内容</span>
+            <button class="mini-button" data-capture="prompt" data-i18n="captureFill" data-i18n-title="capturePromptTitle" title="框选网页文字填入提示词">框选填入</button>
+          </span>
+          <textarea id="prompt" rows="9"></textarea>
+        </label>
+
+        <section class="tag-field" aria-label="标签">
+          <div class="label-row">
+            <span data-i18n="tagLabel">标签</span>
+            <button id="toggleTagPicker" class="add-tag-button" type="button" data-i18n-title="addTagTitle" title="添加标签">+</button>
+          </div>
+          <div id="tagList" class="tag-list"></div>
+          <div id="tagPicker" class="tag-picker" hidden></div>
+        </section>
+
+        <div class="grid">
+          <label class="field">
+            <span class="label-row">
+              <span data-i18n="modelLabel">生图模型</span>
+              <button id="toggleModelPicker" class="add-model-button" type="button" data-i18n-title="addModelTitle" title="选择生图模型">+</button>
+            </span>
+            <input id="model" type="text" data-i18n-placeholder="autoDetect" placeholder="自动识别" readonly>
+            <div id="modelPicker" class="model-picker" hidden></div>
+          </label>
+          <label class="field">
+            <span data-i18n="sourceLabel">来源</span>
+            <input id="source" type="text">
+          </label>
+        </div>
+
+        <label class="field">
+          <span data-i18n="sourceUrlLabel">来源链接</span>
+          <input id="sourceUrl" type="url">
+        </label>
+      </section>
+
+      <section class="image-section">
+        <div class="label-row">
+          <span data-i18n="referenceImages">参考图</span>
+          <span class="inline-actions">
+            <button id="pasteImage" class="mini-button" data-i18n="pasteImage" data-i18n-title="pasteImageTitle" title="从剪贴板粘贴图片">粘贴</button>
+            <button id="addImageFile" class="mini-button" data-i18n="addImage">添加图片</button>
+          </span>
+        </div>
+        <div id="dropZone" class="drop-zone">
+          <input id="imageFileInput" type="file" accept="image/*" multiple hidden>
+          <div id="imagePreview" class="image-list"></div>
+          <p class="drop-hint" data-i18n="dropHint">本地图片可拖到这里。点侧栏进入常驻模式后，可从网页直接拖图；拖动缩略图可排序。</p>
+        </div>
+      </section>
+
+      <footer class="actions">
+        <button id="refresh" class="secondary" data-i18n="refresh">重新识别</button>
+        <button id="openFeishu" class="secondary" data-i18n="openFeishu">打开飞书</button>
+        <button id="save" class="primary" data-i18n="save">保存到飞书</button>
+      </footer>
+    </main>
+
+    <div id="previewOverlay" class="preview-overlay" hidden>
+      <img id="previewImage" data-i18n-alt="previewAlt" alt="参考图预览">
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden>已成功保存</div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
