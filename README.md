@@ -1,53 +1,69 @@
+![Prompt Collector for Feishu](./screenshots/banner.png)
+
 # Prompt Collector for Feishu
 
-个人自用 Chrome 插件：从网页或 X/Twitter 帖子中识别 AI 生图提示词，并写入已有飞书多维表格。
+<p align="center">
+  <a href="#中文">中文</a> ·
+  <a href="#english">English</a> ·
+  <a href="#日本語">日本語</a>
+</p>
 
-## 本版重点
+---
 
-- 框选识别改为“截图裁剪 + OCR/视觉模型识别”，识别结果会填入对应栏目。
-- 顶部 `OCR` 会尝试提取标题、提示词内容和模型。
-- 标题、提示词内容旁的 `OCR 填入` 只会写入对应字段。
-- 点 `图钉` 会打开常驻侧边栏，并自动关闭插件小窗。
-- 侧栏里点 `小窗` 会退出侧栏模式；之后点击浏览器右上角插件图标即可回到小窗。
-- 侧栏模式适合从网页拖图片到参考图区。
-- 参考图支持拖拽排序、点击预览、滚轮缩放、左键拖动查看。
-- 标签和生图模型选项只在打开或刷新设置页时从飞书对应字段同步；设置页仅展示这些选项，不再把选项写回飞书。
+## 中文
 
-## OCR 配置
+Prompt Collector for Feishu 是一个用于收集 AI 生图提示词的浏览器插件。它可以从网页内容中识别标题、提示词、参考素材、模型和标签，并将整理后的内容保存到指定的飞书多维表格中，方便后续检索、归档和复用。
 
-在插件设置页填写：
+### 使用说明
 
-- 接口地址：OpenAI 兼容的 `chat/completions` 接口。
-- API Key：对应服务的密钥。
-- 模型名：必须是支持图片理解的视觉模型。
+首次使用需要设置飞书应用和飞书多维表格，并将飞书应用关联到本插件，即可使用保存到飞书的功能。
 
-框选区域如果跨过较长页面，插件会滚动截图并拼接一张长图，再发送给 OCR 模型。当前最大处理高度约为 5200 像素，过长内容建议分段框选。
+具体设置方法见项目中的 [使用教程.docx](./使用教程.docx) 文件。
 
-## 表格字段
+### License
 
-默认匹配下面这些字段名：
+Released under CC BY-NC-ND 4.0.
 
-- 标题
-- 参考图
-- 提示词内容
-- 生图模型
-- 提示词来源
-- 标签
+For personal non-commercial use only. No commercial use, no derivative redistribution.
 
-`参考图` 如果是附件字段，插件会在创建记录后尝试上传参考图。
+仅个人非商业免费使用，禁止商用、禁止二次修改分发。
 
-## 使用步骤
+---
 
-1. 在飞书开放平台创建自建应用，开通多维表格读写权限，并发布应用。
-2. 把应用或机器人加入目标多维表格的协作者，给它编辑权限。
-3. 打开 Chrome 扩展管理页，开启开发者模式，选择“加载已解压的扩展程序”，加载这个文件夹。
-4. 打开插件设置页，填写飞书、表格和 OCR 配置。
-5. 点击“测试飞书连接”和“检查 OCR 配置”。
-6. 打开要采集的网页，点击插件，检查识别结果后点“保存到飞书”。
+## English
 
-## 注意
+Prompt Collector for Feishu is a browser extension for collecting AI image-generation prompts. It can extract titles, prompts, reference media, models, and tags from web pages, then save the organized content into a specified Feishu Base table for easier searching, archiving, and reuse.
 
-- 小窗模式点击网页会自动收起，这是 Chrome 机制；需要常驻时用图钉进入侧栏。
-- `Table ID` 通常在多维表格链接参数里，例如 `table=tblxxxx`。
-- `Base App Token` 如果链接是 `/base/xxxx`，可以从链接中解析；如果是 `/wiki/xxxx`，需要复制真实 Base 链接或手动填写。
-- 插件会把 `App Secret` 和 OCR API Key 保存在当前浏览器本地，所以这个版本只适合自己使用，不要打包公开分享。
+### Usage
+
+For first-time setup, configure your Feishu app and Feishu Base table, then connect them with this extension to enable saving records to Feishu.
+
+See [使用教程.docx](./使用教程.docx) for the detailed setup guide.
+
+### License
+
+Released under CC BY-NC-ND 4.0.
+
+For personal non-commercial use only. No commercial use, no derivative redistribution.
+
+仅个人非商业免费使用，禁止商用、禁止二次修改分发。
+
+---
+
+## 日本語
+
+Prompt Collector for Feishu は、AI 画像生成プロンプトを収集するためのブラウザ拡張機能です。Webページからタイトル、プロンプト、参考素材、モデル、タグを抽出し、整理した内容を指定した Feishu Base テーブルに保存できます。後から検索、整理、再利用しやすくするためのツールです。
+
+### 使い方
+
+初回利用時は、Feishu アプリと Feishu Base テーブルを設定し、この拡張機能と連携してください。設定後、収集した内容を Feishu に保存できるようになります。
+
+詳しい設定方法は、プロジェクト内の [使用教程.docx](./使用教程.docx) を参照してください。
+
+### License
+
+Released under CC BY-NC-ND 4.0.
+
+For personal non-commercial use only. No commercial use, no derivative redistribution.
+
+仅个人非商业免费使用，禁止商用、禁止二次修改分发。
