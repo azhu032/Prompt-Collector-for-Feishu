@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Prompt Collector for Feishu 设置</title>
+    <link rel="stylesheet" href="options.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="intro">
+        <div class="intro-meta">
+          <p class="eyebrow">Prompt Collector for Feishu</p>
+          <div class="intro-links">
+            <a class="creator-link" href="https://x.com/azhu_032" target="_blank" rel="noopener noreferrer" data-i18n="creatorLink">作者 X：@azhu_032</a>
+            <span id="versionBadge" class="version-badge">v0.0.0</span>
+          </div>
+        </div>
+        <h1 data-i18n="introTitle">连接你的提示词资料库</h1>
+        <p data-i18n="introText">配置飞书多维表格后，即可把网页提示词、参考图和来源保存到你的资料库。框选识别会优先读取网页真实文字。</p>
+      </section>
+
+      <section class="card">
+        <h2 data-i18n="feishuApp">飞书应用</h2>
+        <div class="grid">
+          <label>
+            <span>App ID</span>
+            <input id="appId" type="text" autocomplete="off">
+          </label>
+          <label>
+            <span>App Secret</span>
+            <input id="appSecret" type="password" autocomplete="off">
+          </label>
+        </div>
+        <label>
+          <span data-i18n="feishuHost">飞书开放平台域名</span>
+          <input id="feishuHost" type="url">
+        </label>
+      </section>
+
+      <section class="card">
+        <h2 data-i18n="uiSettings">界面设置</h2>
+        <label>
+          <span data-i18n="languageLabel">界面语言</span>
+          <select id="popupLanguage">
+            <option value="zh">中文</option>
+            <option value="ja">日本語</option>
+            <option value="en">English</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="card">
+        <h2 data-i18n="targetTable">目标表格</h2>
+        <label>
+          <span data-i18n="baseUrlLabel">多维表格链接，可用于辅助解析 Table ID</span>
+          <input id="baseUrl" type="url" placeholder="https://...">
+        </label>
+        <div class="grid">
+          <label>
+            <span>Base App Token</span>
+            <input id="appToken" type="text" autocomplete="off" placeholder="bascn...">
+          </label>
+          <label>
+            <span>Table ID</span>
+            <input id="tableId" type="text" autocomplete="off" placeholder="tbl...">
+          </label>
+        </div>
+        <button id="parseUrl" class="secondary" data-i18n="parseUrl">从链接解析</button>
+      </section>
+
+      <section class="card">
+        <h2 data-i18n="ocrTitle">OCR 视觉模型（可选备用）</h2>
+        <p class="hint" data-i18n="ocrHint">普通网页文字不需要填写这里；只有图片或视频画面里的文字才可能需要 OCR。</p>
+        <label>
+          <span data-i18n="ocrEndpoint">接口地址</span>
+          <input id="ocrEndpoint" type="url" placeholder="例如：https://api.openai.com/v1/chat/completions" data-i18n-placeholder="ocrEndpointPlaceholder">
+        </label>
+        <div class="grid">
+          <label>
+            <span>API Key</span>
+            <input id="ocrApiKey" type="password" autocomplete="off">
+          </label>
+          <label>
+            <span data-i18n="ocrModel">模型名</span>
+            <input id="ocrModel" type="text" autocomplete="off" placeholder="填写支持图片理解的模型" data-i18n-placeholder="ocrModelPlaceholder">
+          </label>
+        </div>
+        <button id="testOcr" class="secondary" data-i18n="testOcr">检查备用 OCR 配置</button>
+      </section>
+
+      <section class="card">
+        <h2 data-i18n="fieldMapping">字段映射</h2>
+        <div class="grid">
+          <label>
+            <span data-i18n="fieldTitle">标题</span>
+            <input id="fieldTitle" type="text">
+          </label>
+          <label>
+            <span data-i18n="fieldImage">参考图</span>
+            <input id="fieldImage" type="text">
+          </label>
+          <label>
+            <span data-i18n="fieldPrompt">提示词内容</span>
+            <input id="fieldPrompt" type="text">
+          </label>
+          <label>
+            <span data-i18n="fieldModel">生图模型</span>
+            <input id="fieldModel" type="text">
+          </label>
+          <label>
+            <span data-i18n="fieldSource">提示词来源</span>
+            <input id="fieldSource" type="text">
+          </label>
+          <label>
+            <span data-i18n="fieldTags">标签</span>
+            <input id="fieldTags" type="text">
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 data-i18n="optionManagement">选项管理</h2>
+        <p class="hint" data-i18n="optionHint">这里仅显示从飞书字段读取到的选项，不能在插件里编辑。需要调整选项时，请在飞书表格字段中修改后刷新设置页。</p>
+        <div class="grid option-grid">
+          <div class="option-panel">
+            <div class="option-label" data-i18n="tagOptions">标签选项</div>
+            <div id="tagOptions" class="option-chips" aria-live="polite"></div>
+          </div>
+          <div class="option-panel">
+            <div class="option-label" data-i18n="modelOptions">生图模型选项</div>
+            <div id="modelOptions" class="option-chips" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="status" class="status" data-i18n="defaultStatus">配置只保存在当前浏览器本地。</section>
+
+      <footer class="actions">
+        <button id="test" class="secondary" data-i18n="testFeishu">测试飞书连接</button>
+        <button id="openFeishu" class="secondary" data-i18n="openFeishu">打开飞书</button>
+        <button id="save" class="primary" data-i18n="saveSettings">保存设置</button>
+      </footer>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>
