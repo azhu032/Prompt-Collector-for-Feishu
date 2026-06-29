@@ -54,12 +54,12 @@ const translations = {
     ocrModelPlaceholder: "填写支持图片理解的模型",
     testOcr: "检查备用 OCR 配置",
     fieldMapping: "字段映射",
-    fieldTitle: "标题字段",
-    fieldImage: "参考图字段",
-    fieldPrompt: "提示词内容字段",
-    fieldModel: "生图模型字段",
-    fieldSource: "提示词来源字段",
-    fieldTags: "标签字段",
+    fieldTitle: "标题",
+    fieldImage: "参考图",
+    fieldPrompt: "提示词内容",
+    fieldModel: "生图模型",
+    fieldSource: "提示词来源",
+    fieldTags: "标签",
     optionManagement: "选项管理",
     optionHint: "这里仅显示从飞书字段读取到的选项，不能在插件里编辑。需要调整选项时，请在飞书表格字段中修改后刷新设置页。",
     tagOptions: "标签选项",
@@ -104,12 +104,12 @@ const translations = {
     ocrModelPlaceholder: "画像理解に対応したモデル名",
     testOcr: "OCR設定を確認",
     fieldMapping: "フィールド対応",
-    fieldTitle: "タイトルフィールド",
-    fieldImage: "参考画像フィールド",
-    fieldPrompt: "プロンプト本文フィールド",
-    fieldModel: "画像生成モデルフィールド",
-    fieldSource: "出典フィールド",
-    fieldTags: "タグフィールド",
+    fieldTitle: "タイトル",
+    fieldImage: "参考画像",
+    fieldPrompt: "プロンプト本文",
+    fieldModel: "画像生成モデル",
+    fieldSource: "出典",
+    fieldTags: "タグ",
     optionManagement: "選択肢",
     optionHint: "ここにはFeishuフィールドから読み取った選択肢だけを表示します。編集する場合はFeishu側で変更し、設定ページを更新してください。",
     tagOptions: "タグ選択肢",
@@ -154,12 +154,12 @@ const translations = {
     ocrModelPlaceholder: "Use a model that supports image understanding",
     testOcr: "Check OCR Config",
     fieldMapping: "Field Mapping",
-    fieldTitle: "Title Field",
-    fieldImage: "Reference Image Field",
-    fieldPrompt: "Prompt Content Field",
-    fieldModel: "Image Model Field",
-    fieldSource: "Prompt Source Field",
-    fieldTags: "Tags Field",
+    fieldTitle: "Title",
+    fieldImage: "Reference Image",
+    fieldPrompt: "Prompt Content",
+    fieldModel: "Image Model",
+    fieldSource: "Prompt Source",
+    fieldTags: "Tags",
     optionManagement: "Options",
     optionHint: "This area only shows options read from Feishu fields. Edit options in Feishu, then refresh this settings page.",
     tagOptions: "Tag Options",
@@ -213,12 +213,12 @@ async function load() {
   el.ocrEndpoint.value = config.ocr?.endpoint || "";
   el.ocrApiKey.value = config.ocr?.apiKey || "";
   el.ocrModel.value = config.ocr?.model || "";
-  el.fieldTitle.value = config.fieldNames.title || "标题";
-  el.fieldImage.value = config.fieldNames.referenceImage || "参考图";
-  el.fieldPrompt.value = config.fieldNames.prompt || "提示词内容";
-  el.fieldModel.value = config.fieldNames.model || "生图模型";
-  el.fieldSource.value = config.fieldNames.source || "提示词来源";
-  el.fieldTags.value = config.fieldNames.tags || "标签";
+  el.fieldTitle.value = config.fieldNames.title || "";
+  el.fieldImage.value = config.fieldNames.referenceImage || "";
+  el.fieldPrompt.value = config.fieldNames.prompt || "";
+  el.fieldModel.value = config.fieldNames.model || "";
+  el.fieldSource.value = config.fieldNames.source || "";
+  el.fieldTags.value = config.fieldNames.tags || "";
   renderOptionChips("tags", []);
   renderOptionChips("models", []);
   await refreshOptionsFromFeishu();
@@ -288,7 +288,7 @@ async function testFeishu() {
     el.fieldModel.value,
     el.fieldSource.value,
     el.fieldTags.value
-  ];
+  ].map((name) => name.trim()).filter(Boolean);
   const missing = configured.filter((name) => !response.fields.includes(name));
   if (missing.length) {
     setStatus(t("missingFields", { fields: missing.join("、") }));
@@ -349,12 +349,12 @@ function collectConfig() {
       model: el.ocrModel.value.trim()
     },
     fieldNames: {
-      title: el.fieldTitle.value.trim() || "标题",
-      referenceImage: el.fieldImage.value.trim() || "参考图",
-      prompt: el.fieldPrompt.value.trim() || "提示词内容",
-      model: el.fieldModel.value.trim() || "生图模型",
-      source: el.fieldSource.value.trim() || "提示词来源",
-      tags: el.fieldTags.value.trim() || "标签"
+      title: el.fieldTitle.value.trim(),
+      referenceImage: el.fieldImage.value.trim(),
+      prompt: el.fieldPrompt.value.trim(),
+      model: el.fieldModel.value.trim(),
+      source: el.fieldSource.value.trim(),
+      tags: el.fieldTags.value.trim()
     },
     optionLists: {
       tags: optionState.tags,

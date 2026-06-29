@@ -6,12 +6,12 @@ const DEFAULT_CONFIG = {
   appToken: "",
   tableId: "",
   fieldNames: {
-    title: "标题",
-    referenceImage: "参考图",
-    prompt: "提示词内容",
-    model: "生图模型",
-    source: "提示词来源",
-    tags: "标签"
+    title: "",
+    referenceImage: "",
+    prompt: "",
+    model: "",
+    source: "",
+    tags: ""
   },
   optionLists: {
     tags: [],
@@ -450,6 +450,7 @@ async function savePromptRecord(input) {
 
   const data = normalizePromptData(input);
   if (!data.prompt) throw new Error("没有识别到提示词内容，请手动填写后再保存。");
+  validateFieldMappingForSave(config, data);
 
   const fields = {};
   fields[config.fieldNames.title] = data.title || buildTitle(data);
@@ -771,6 +772,17 @@ function validateConfig(config) {
   if (!config.appToken) missing.push("Base App Token");
   if (!config.tableId) missing.push("Table ID");
   if (missing.length) throw new Error(`请先在设置页填写：${missing.join("、")}`);
+}
+
+function validateFieldMappingForSave(config, data) {
+  const missing = [];
+  if (!config.fieldNames?.title) missing.push("标题字段");
+  if (!config.fieldNames?.prompt) missing.push("提示词内容字段");
+  if (!config.fieldNames?.source) missing.push("提示词来源字段");
+  if (data.images.length && !config.fieldNames?.referenceImage) missing.push("参考素材字段");
+  if (data.model && !config.fieldNames?.model) missing.push("生图模型字段");
+  if (data.tags.length && !config.fieldNames?.tags) missing.push("标签字段");
+  if (missing.length) throw new Error(`请先在设置页填写字段映射：${missing.join("、")}`);
 }
 
 function normalizePromptData(input) {
