@@ -14,9 +14,15 @@
 
 Prompt Collector for Feishu 是一个用于收集 AI 生图提示词的浏览器插件。它可以从网页内容中识别标题、提示词、参考素材、模型和标签，并将整理后的内容保存到指定的飞书多维表格中，方便后续检索、归档和复用。
 
+### 插件截图
+
+![插件界面 1](./screenshots/插件界面1.png)
+
+![插件界面 2](./screenshots/插件界面2.png)
+
 ### 使用说明
 
-首次使用需要设置飞书应用和飞书多维表格，并将飞书应用关联到本插件，即可使用保存到飞书的功能。
+首次使用需要设置飞书应用和飞书多维表格，并关联到本插件，即可使用保存到飞书的功能。
 
 具体设置方法见项目中的 [使用教程.docx](./使用教程.docx) 文件。
 
@@ -33,6 +39,12 @@ For personal non-commercial use only. No commercial use, no derivative redistrib
 ## English
 
 Prompt Collector for Feishu is a browser extension for collecting AI image-generation prompts. It can extract titles, prompts, reference media, models, and tags from web pages, then save the organized content into a specified Feishu Base table for easier searching, archiving, and reuse.
+
+### Plugin Screenshots
+
+![Plugin interface 1](./screenshots/插件界面1.png)
+
+![Plugin interface 2](./screenshots/插件界面2.png)
 
 ### Usage
 
@@ -53,6 +65,12 @@ For personal non-commercial use only. No commercial use, no derivative redistrib
 ## 日本語
 
 Prompt Collector for Feishu は、AI 画像生成プロンプトを収集するためのブラウザ拡張機能です。Webページからタイトル、プロンプト、参考素材、モデル、タグを抽出し、整理した内容を指定した Feishu Base テーブルに保存できます。後から検索、整理、再利用しやすくするためのツールです。
+
+### プラグインスクリーンショット
+
+![プラグイン画面 1](./screenshots/插件界面1.png)
+
+![プラグイン画面 2](./screenshots/插件界面2.png)
 
 ### 使い方
 
