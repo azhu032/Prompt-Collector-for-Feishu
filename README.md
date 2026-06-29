@@ -16,13 +16,13 @@ Prompt Collector for Feishu 是一个用于收集 AI 生图提示词的浏览器
 
 ### 插件截图
 
-<table>
+<table cellspacing="5" cellpadding="0">
   <tr>
-    <td width="50%" align="center">
-      <img src="./screenshots/插件界面1.png" width="360" alt="插件界面 1">
+    <td align="center">
+      <img src="./screenshots/插件界面1.png" width="200" alt="插件界面 1">
     </td>
-    <td width="50%" align="center">
-      <img src="./screenshots/插件界面2.png" width="360" alt="插件界面 2">
+    <td align="center">
+      <img src="./screenshots/插件界面2.png" width="200" alt="插件界面 2">
     </td>
   </tr>
 </table>
@@ -47,19 +47,6 @@ For personal non-commercial use only. No commercial use, no derivative redistrib
 
 Prompt Collector for Feishu is a browser extension for collecting AI image-generation prompts. It can extract titles, prompts, reference media, models, and tags from web pages, then save the organized content into a specified Feishu Base table for easier searching, archiving, and reuse.
 
-### Plugin Screenshots
-
-<table>
-  <tr>
-    <td width="50%" align="center">
-      <img src="./screenshots/插件界面1.png" width="360" alt="Plugin interface 1">
-    </td>
-    <td width="50%" align="center">
-      <img src="./screenshots/插件界面2.png" width="360" alt="Plugin interface 2">
-    </td>
-  </tr>
-</table>
-
 ### Usage
 
 For first-time setup, configure your Feishu app and Feishu Base table, then connect them with this extension to enable saving records to Feishu.
@@ -79,19 +66,6 @@ For personal non-commercial use only. No commercial use, no derivative redistrib
 ## 日本語
 
 Prompt Collector for Feishu は、AI 画像生成プロンプトを収集するためのブラウザ拡張機能です。Webページからタイトル、プロンプト、参考素材、モデル、タグを抽出し、整理した内容を指定した Feishu Base テーブルに保存できます。後から検索、整理、再利用しやすくするためのツールです。
-
-### プラグインスクリーンショット
-
-<table>
-  <tr>
-    <td width="50%" align="center">
-      <img src="./screenshots/插件界面1.png" width="360" alt="プラグイン画面 1">
-    </td>
-    <td width="50%" align="center">
-      <img src="./screenshots/插件界面2.png" width="360" alt="プラグイン画面 2">
-    </td>
-  </tr>
-</table>
 
 ### 使い方
 
