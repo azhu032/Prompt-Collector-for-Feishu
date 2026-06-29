@@ -16,9 +16,16 @@ Prompt Collector for Feishu 是一个用于收集 AI 生图提示词的浏览器
 
 ### 插件截图
 
-![插件界面 1](./screenshots/插件界面1.png)
-
-![插件界面 2](./screenshots/插件界面2.png)
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="./screenshots/插件界面1.png" width="360" alt="插件界面 1">
+    </td>
+    <td width="50%" align="center">
+      <img src="./screenshots/插件界面2.png" width="360" alt="插件界面 2">
+    </td>
+  </tr>
+</table>
 
 ### 使用说明
 
@@ -42,9 +49,16 @@ Prompt Collector for Feishu is a browser extension for collecting AI image-gener
 
 ### Plugin Screenshots
 
-![Plugin interface 1](./screenshots/插件界面1.png)
-
-![Plugin interface 2](./screenshots/插件界面2.png)
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="./screenshots/插件界面1.png" width="360" alt="Plugin interface 1">
+    </td>
+    <td width="50%" align="center">
+      <img src="./screenshots/插件界面2.png" width="360" alt="Plugin interface 2">
+    </td>
+  </tr>
+</table>
 
 ### Usage
 
@@ -68,9 +82,16 @@ Prompt Collector for Feishu は、AI 画像生成プロンプトを収集する�
 
 ### プラグインスクリーンショット
 
-![プラグイン画面 1](./screenshots/插件界面1.png)
-
-![プラグイン画面 2](./screenshots/插件界面2.png)
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="./screenshots/插件界面1.png" width="360" alt="プラグイン画面 1">
+    </td>
+    <td width="50%" align="center">
+      <img src="./screenshots/插件界面2.png" width="360" alt="プラグイン画面 2">
+    </td>
+  </tr>
+</table>
 
 ### 使い方
 
