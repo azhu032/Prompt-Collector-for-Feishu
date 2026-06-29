@@ -220,9 +220,8 @@ async function load() {
   el.fieldSource.value = config.fieldNames.source || "提示词来源";
   el.fieldTags.value = config.fieldNames.tags || "标签";
   renderOptionChips("tags", []);
-  renderOptionChips("models", config.optionLists?.models || defaultModelOptions());
-  await syncTagOptionsFromFeishu();
-  await syncModelOptionsFromFeishu();
+  renderOptionChips("models", []);
+  await refreshOptionsFromFeishu();
 }
 
 async function save() {
@@ -238,36 +237,49 @@ async function save() {
   setStatus(response.message || t("settingsSaveFailed"));
 }
 
-async function syncTagOptionsFromFeishu() {
-  const response = await chrome.runtime.sendMessage({ type: "SYNC_TAG_OPTIONS_FROM_FEISHU" });
-  if (response?.synced) {
+async function refreshOptionsFromFeishu(options = {}) {
+  await syncTagOptionsFromFeishu(options);
+  await syncModelOptionsFromFeishu(options);
+}
+
+async function syncTagOptionsFromFeishu({ config = null, silent = false } = {}) {
+  const response = await chrome.runtime.sendMessage({
+    type: "SYNC_TAG_OPTIONS_FROM_FEISHU",
+    config
+  });
+  if (response?.ok) {
     renderOptionChips("tags", response.options);
   }
-  if (response?.synced) {
+  if (response?.synced && !silent) {
     setStatus(t("syncedTags", { count: optionState.tags.length }), true);
   }
 }
 
-async function syncModelOptionsFromFeishu() {
-  const response = await chrome.runtime.sendMessage({ type: "SYNC_MODEL_OPTIONS_FROM_FEISHU" });
-  if (response?.options?.length) {
+async function syncModelOptionsFromFeishu({ config = null, silent = false } = {}) {
+  const response = await chrome.runtime.sendMessage({
+    type: "SYNC_MODEL_OPTIONS_FROM_FEISHU",
+    config
+  });
+  if (response?.ok) {
     renderOptionChips("models", response.options);
   }
-  if (response?.synced) {
+  if (response?.synced && !silent) {
     setStatus(t("syncedModels", { count: optionState.models.length }), true);
   }
 }
 
 async function testFeishu() {
   setStatus(t("testingFeishu"));
+  const config = collectConfig();
   const response = await chrome.runtime.sendMessage({
     type: "TEST_FEISHU",
-    config: collectConfig()
+    config
   });
   if (!response.ok) {
     setStatus(response.message || t("connectionFailed"));
     return;
   }
+  await refreshOptionsFromFeishu({ config, silent: true });
 
   const configured = [
     el.fieldTitle.value,
@@ -346,7 +358,7 @@ function collectConfig() {
     },
     optionLists: {
       tags: optionState.tags,
-      models: optionState.models.length ? optionState.models : defaultModelOptions()
+      models: optionState.models
     }
   };
 }
@@ -382,10 +394,6 @@ function normalizeOptionList(items) {
     out.push(clean);
   });
   return out;
-}
-
-function defaultModelOptions() {
-  return ["GPT Image", "Midjourney", "Stable Diffusion"];
 }
 
 function setStatus(message, ok = false) {

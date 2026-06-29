@@ -32,7 +32,6 @@ const languages = {
 };
 
 const defaultTagOptions = [];
-const defaultModelOptions = ["GPT Image", "Midjourney", "Stable Diffusion"];
 
 const translations = {
   zh: {
@@ -58,14 +57,14 @@ const translations = {
     removeTagTitle: "删除标签",
     modelLabel: "生图模型",
     addModelTitle: "选择生图模型",
-    autoDetect: "自动识别",
+    autoDetect: "点击进行选择",
     sourceLabel: "来源",
     sourceUrlLabel: "来源链接",
-    referenceImages: "参考图",
-    addImage: "添加图片",
+    referenceImages: "参考素材",
+    addImage: "添加素材",
     pasteImage: "粘贴",
     pasteImageTitle: "从剪贴板粘贴图片",
-    dropHint: "本地图片可拖到这里。点侧栏进入常驻模式后，可从网页直接拖图；拖动缩略图可排序。",
+    dropHint: "本地图片或视频可拖到这里。点侧栏进入常驻模式后，可从网页直接拖图；拖动缩略图可排序。",
     refresh: "重新识别",
     openFeishu: "打开飞书",
     openFeishuFailed: "无法打开飞书表格，请检查设置。",
@@ -97,9 +96,10 @@ const translations = {
     pasteFailed: "读取剪贴板失败，请复制图片后再试。",
     pasteAdded: "已从剪贴板加入 {count} 张参考图。",
     draftRestored: "已保留刚才编辑的内容。",
-    imageEmpty: "未添加参考图",
-    imageAlt: "参考图",
-    removeImageTitle: "删除参考图"
+    imageEmpty: "未添加参考素材",
+    imageAlt: "参考素材",
+    videoAlt: "参考视频",
+    removeImageTitle: "删除参考素材"
   },
   ja: {
     appTitle: "プロンプト収集",
@@ -127,11 +127,11 @@ const translations = {
     autoDetect: "自動認識",
     sourceLabel: "出典",
     sourceUrlLabel: "出典リンク",
-    referenceImages: "参考画像",
-    addImage: "画像を追加",
+    referenceImages: "参考素材",
+    addImage: "素材を追加",
     pasteImage: "貼り付け",
     pasteImageTitle: "クリップボードから画像を貼り付け",
-    dropHint: "ローカル画像をここにドラッグできます。サイドバーの常駐モードではWebページから直接画像をドラッグでき、サムネイルの並べ替えもできます。",
+    dropHint: "ローカル画像または動画をここにドラッグできます。サイドバーの常駐モードではWebページから直接画像をドラッグでき、サムネイルの並べ替えもできます。",
     refresh: "再認識",
     openFeishu: "Feishuを開く",
     openFeishuFailed: "Feishuテーブルを開けません。設定を確認してください。",
@@ -163,9 +163,10 @@ const translations = {
     pasteFailed: "クリップボードを読み取れません。画像をコピーしてからお試しください。",
     pasteAdded: "クリップボードから参考画像を {count} 枚追加しました。",
     draftRestored: "先ほど編集中の内容を引き継ぎました。",
-    imageEmpty: "参考画像は未追加です",
-    imageAlt: "参考画像",
-    removeImageTitle: "参考画像を削除"
+    imageEmpty: "参考素材は未追加です",
+    imageAlt: "参考素材",
+    videoAlt: "参考動画",
+    removeImageTitle: "参考素材を削除"
   },
   en: {
     appTitle: "Prompt Collector for Feishu",
@@ -193,11 +194,11 @@ const translations = {
     autoDetect: "Auto detect",
     sourceLabel: "Source",
     sourceUrlLabel: "Source link",
-    referenceImages: "Reference images",
-    addImage: "Add image",
+    referenceImages: "Reference media",
+    addImage: "Add media",
     pasteImage: "Paste",
     pasteImageTitle: "Paste image from clipboard",
-    dropHint: "Drag local images here. In pinned side panel mode, you can drag images directly from webpages; drag thumbnails to reorder.",
+    dropHint: "Drag local images or videos here. In pinned side panel mode, you can drag images directly from webpages; drag thumbnails to reorder.",
     refresh: "Detect again",
     openFeishu: "Open Feishu",
     openFeishuFailed: "Unable to open the Feishu table. Please check settings.",
@@ -229,16 +230,17 @@ const translations = {
     pasteFailed: "Unable to read the clipboard. Copy an image and try again.",
     pasteAdded: "Added {count} reference images from the clipboard.",
     draftRestored: "Your edited content was preserved.",
-    imageEmpty: "No reference images added",
-    imageAlt: "Reference image",
-    removeImageTitle: "Remove reference image"
+    imageEmpty: "No reference media added",
+    imageAlt: "Reference media",
+    videoAlt: "Reference video",
+    removeImageTitle: "Remove reference media"
   }
 };
 
 let images = [];
 let selectedTags = [];
 let tagOptions = [...defaultTagOptions];
-let modelOptions = [...defaultModelOptions];
+let modelOptions = [];
 let draggedImageId = null;
 let dragInsertIndex = null;
 let previewState = { scale: 1, x: 0, y: 0, dragging: false, lastX: 0, lastY: 0 };
@@ -263,18 +265,25 @@ document.getElementById("captureAll").addEventListener("click", () => startRegio
 document.getElementById("addImageFile").addEventListener("click", () => imageInput.click());
 pasteImageButton.addEventListener("click", pasteImagesFromClipboard);
 toggleTagPicker.addEventListener("click", () => {
-  tagPicker.hidden = !tagPicker.hidden;
-  if (!tagPicker.hidden) modelPicker.hidden = true;
-  renderTagPicker();
+  toggleTagPickerPanel();
 });
 toggleModelPicker.addEventListener("click", () => {
   modelPicker.hidden = !modelPicker.hidden;
-  if (!modelPicker.hidden) tagPicker.hidden = true;
+  if (!modelPicker.hidden) closeTagPickerPanel();
   renderModelPicker();
+});
+tagList.addEventListener("click", (event) => {
+  if (event.target.closest(".tag-chip button")) return;
+  toggleTagPickerPanel();
+});
+tagList.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  event.preventDefault();
+  toggleTagPickerPanel();
 });
 fields.model.addEventListener("click", () => {
   modelPicker.hidden = !modelPicker.hidden;
-  if (!modelPicker.hidden) tagPicker.hidden = true;
+  if (!modelPicker.hidden) closeTagPickerPanel();
   renderModelPicker();
 });
 document.querySelectorAll("[data-capture]").forEach((button) => {
@@ -345,7 +354,7 @@ previewOverlay.addEventListener("pointerup", (event) => {
 });
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !previewOverlay.hidden) closePreview();
-  if (event.key === "Escape" && !tagPicker.hidden) tagPicker.hidden = true;
+  if (event.key === "Escape" && !tagPicker.hidden) closeTagPickerPanel();
   if (event.key === "Escape" && !modelPicker.hidden) modelPicker.hidden = true;
 });
 document.addEventListener("paste", async (event) => {
@@ -384,11 +393,11 @@ async function loadOptionLists() {
     const response = await chrome.runtime.sendMessage({ type: "GET_CONFIG" });
     const lists = response?.config?.optionLists || {};
     tagOptions = normalizeOptionList(lists.tags);
-    modelOptions = normalizeOptionList(lists.models).length ? normalizeOptionList(lists.models) : [...defaultModelOptions];
+    modelOptions = normalizeOptionList(lists.models);
     selectedTags = selectedTags.filter((tag) => tagOptions.includes(tag));
   } catch {
     tagOptions = [];
-    modelOptions = [...defaultModelOptions];
+    modelOptions = [];
   }
 }
 
@@ -435,6 +444,18 @@ function t(key, values = {}) {
 function setPinButtonText() {
   pinButton.textContent = t(isSideMode ? "pinClose" : "pinOpen");
   pinButton.title = t(isSideMode ? "pinCloseTitle" : "pinOpenTitle");
+}
+
+function toggleTagPickerPanel() {
+  tagPicker.hidden = !tagPicker.hidden;
+  tagList.setAttribute("aria-expanded", String(!tagPicker.hidden));
+  if (!tagPicker.hidden) modelPicker.hidden = true;
+  renderTagPicker();
+}
+
+function closeTagPickerPanel() {
+  tagPicker.hidden = true;
+  tagList.setAttribute("aria-expanded", "false");
 }
 
 async function loadModelOptions() {
@@ -628,6 +649,7 @@ function applyRegionCapture(target, data) {
     fields.prompt.value = data.prompt || data.rawText || "";
     setModelValue(data.model, false);
     addTags(data.tags || []);
+    addTags(detectPromptTags(fields.prompt.value));
     addUrlImages(data.imageUrls || []);
     setStatus(hasText ? t("promptCaptured") : data.textReadError || t("regionNoText"), hasText);
     return;
@@ -645,6 +667,7 @@ function applyExtractedData(data, replaceImages) {
   fields.sourceUrl.value = data.sourceUrl || fields.sourceUrl.value || "";
   if (replaceImages) selectedTags = [];
   addTags(data.tags || []);
+  addTags(detectPromptTags(fields.prompt.value));
   if (replaceImages) images = [];
   addUrlImages(data.imageUrls || []);
 }
@@ -671,6 +694,7 @@ function toggleTag(tag) {
 
 function renderTags() {
   tagList.innerHTML = "";
+  tagList.setAttribute("aria-expanded", String(!tagPicker.hidden));
   if (!selectedTags.length) {
     const empty = document.createElement("span");
     empty.className = "tag-empty";
@@ -688,7 +712,10 @@ function renderTags() {
     remove.type = "button";
     remove.textContent = "×";
     remove.title = t("removeTagTitle");
-    remove.addEventListener("click", () => toggleTag(tag));
+    remove.addEventListener("click", (event) => {
+      event.stopPropagation();
+      toggleTag(tag);
+    });
 
     chip.append(remove);
     tagList.append(chip);
@@ -708,6 +735,61 @@ function renderTagPicker() {
   });
 }
 
+function detectPromptTags(text) {
+  const normalized = normalizeForTagMatch(text);
+  if (!normalized) return [];
+  return tagOptions.filter((tag) => tagMatchesPrompt(tag, normalized));
+}
+
+function tagMatchesPrompt(tag, normalizedText) {
+  const normalizedTag = normalizeForTagMatch(tag);
+  if (!normalizedTag) return false;
+  if (containsTagTerm(normalizedText, normalizedTag)) return true;
+  return getTagMatchHints(normalizedTag).some((hint) => containsTagTerm(normalizedText, normalizeForTagMatch(hint)));
+}
+
+function getTagMatchHints(normalizedTag) {
+  const hints = [];
+  const add = (items) => hints.push(...items);
+  if (/插画|插圖|illustration|illustrator/.test(normalizedTag)) add(["插画", "插圖", "插图", "illustration", "illustrated", "anime", "漫画", "manga", "水彩", "绘本"]);
+  if (/海报|poster/.test(normalizedTag)) add(["海报", "poster", "kv", "key visual", "主视觉", "宣传图", "封面"]);
+  if (/建筑|建築|architect/.test(normalizedTag)) add(["建筑", "建築", "architecture", "architectural", "building", "facade", "立面", "空间设计"]);
+  if (/室内|室內|interior/.test(normalizedTag)) add(["室内", "室內", "interior", "living room", "bedroom", "kitchen", "家居", "软装", "軟裝"]);
+  if (/电商|電商|ecommerce|e-commerce/.test(normalizedTag)) add(["电商", "電商", "ecommerce", "e-commerce", "商品图", "主图", "详情页", "product shot", "product photo"]);
+  if (/教育|education|edu/.test(normalizedTag)) add(["教育", "education", "teaching", "learning", "课堂", "课程", "培训", "school"]);
+  if (/sns|social|社交/.test(normalizedTag)) add(["sns", "social media", "instagram", "小红书", "社媒", "社交媒体", "post"]);
+  if (/摄影|攝影|photo|photography/.test(normalizedTag)) add(["摄影", "攝影", "photo", "photography", "portrait", "camera", "镜头", "拍摄"]);
+  if (/cosplay|cos/.test(normalizedTag)) add(["cosplay", "coser", "角色扮演", "cos"]);
+  if (/时尚|時尚|fashion/.test(normalizedTag)) add(["时尚", "時尚", "fashion", "runway", "editorial", "lookbook", "穿搭", "高级感"]);
+  if (/分镜|分鏡|storyboard|影视|影視/.test(normalizedTag)) add(["分镜", "分鏡", "storyboard", "cinematic", "film still", "镜头语言", "影视"]);
+  if (/创意|創意|creative/.test(normalizedTag)) add(["创意", "創意", "creative", "concept", "idea", "脑洞", "概念"]);
+  if (/ppt|presentation|幻灯|簡報|简报/.test(normalizedTag)) add(["ppt", "presentation", "slide", "deck", "幻灯片", "简报", "簡報"]);
+  if (/^ui$|ux|interface|界面/.test(normalizedTag)) add(["ui", "ux", "interface", "app screen", "dashboard", "界面", "组件", "按钮"]);
+  if (/游戏|遊戲|game/.test(normalizedTag)) add(["游戏", "遊戲", "game", "game art", "character design", "关卡", "道具", "场景概念"]);
+  return hints;
+}
+
+function normalizeForTagMatch(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[\u3000]/g, " ")
+    .replace(/[，、。；：！？（）【】《》“”‘’]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function containsTagTerm(normalizedText, normalizedTerm) {
+  if (!normalizedTerm) return false;
+  if (/^[a-z0-9+#.-]{1,4}$/.test(normalizedTerm)) {
+    return new RegExp(`(^|[^a-z0-9])${escapeRegExp(normalizedTerm)}([^a-z0-9]|$)`, "i").test(normalizedText);
+  }
+  return normalizedText.includes(normalizedTerm);
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 async function savePrompt() {
   setStatus(t("saving"));
   const payload = {
@@ -719,14 +801,21 @@ async function savePrompt() {
     tags: selectedTags,
     images
   };
-  const response = await chrome.runtime.sendMessage({ type: "SAVE_PROMPT", data: payload });
-  if (response?.ok) {
-    setStatus(response.message || t("saveSuccess"), true);
-    showToast(t("saveToast"), true);
-    return;
+  try {
+    const response = await chrome.runtime.sendMessage({ type: "SAVE_PROMPT", data: payload });
+    if (response?.ok) {
+      setStatus(response.message || t("saveSuccess"), true);
+      showToast(t("saveToast"), true, 2800);
+      return;
+    }
+    const message = response?.message || t("saveFailed");
+    setStatus(message);
+    showToast(message || t("saveFailedToast"), false, 4600);
+  } catch (error) {
+    const message = error?.message || t("saveFailed");
+    setStatus(message);
+    showToast(message, false, 4600);
   }
-  setStatus(response?.message || t("saveFailed"));
-  showToast(t("saveFailedToast"), false);
 }
 
 async function openFeishuTable() {
@@ -744,20 +833,45 @@ async function handleImageDrop(dataTransfer) {
   }
   const urls = [];
   const uri = dataTransfer.getData("text/uri-list") || dataTransfer.getData("text/plain");
-  if (uri && /^https?:\/\//i.test(uri.trim())) urls.push(uri.trim());
   const html = dataTransfer.getData("text/html");
   if (html) {
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    doc.querySelectorAll("img").forEach((img) => {
-      if (img.src) urls.push(img.src);
-    });
+    urls.push(...extractDroppedMediaUrls(html));
+  }
+  if (!urls.length && uri && isUsableMediaUrl(uri.trim(), true)) {
+    urls.push(uri.trim());
   }
   addUrlImages(urls);
 }
 
+function extractDroppedMediaUrls(html) {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const mediaItems = [];
+  const push = (value, mediaType, strict = false) => {
+    const clean = String(value || "").trim();
+    if (!clean || clean.startsWith("blob:")) return;
+    if (isUsableMediaUrl(clean, strict)) {
+      mediaItems.push({
+        url: clean,
+        mediaType: mediaType || mediaKindFromUrl(clean)
+      });
+    }
+  };
+
+  doc.querySelectorAll("img").forEach((img) => {
+    push(img.getAttribute("src") || img.getAttribute("data-src") || img.getAttribute("data-original") || img.currentSrc || img.src, "image");
+  });
+  doc.querySelectorAll("video, video source").forEach((video) => {
+    push(video.getAttribute("src") || video.getAttribute("data-src") || video.getAttribute("data-video-src") || video.getAttribute("data-url") || video.currentSrc || video.src, "video");
+  });
+  doc.querySelectorAll("a").forEach((link) => {
+    push(link.getAttribute("href") || link.href, "", true);
+  });
+  return mediaItems;
+}
+
 async function addFiles(fileList) {
-  const files = Array.from(fileList || []).filter((file) => file.type.startsWith("image/"));
-  addImageItems(await Promise.all(files.map(fileToImageItem)));
+  const files = Array.from(fileList || []).filter(isSupportedMediaFile);
+  addImageItems(await Promise.all(files.map(fileToMediaItem)));
 }
 
 async function pasteImagesFromClipboard() {
@@ -791,16 +905,22 @@ async function addClipboardItems(items) {
     if (!item.type?.startsWith("image/")) continue;
     const file = item.getAsFile();
     if (!file) continue;
-    imageItems.push(await fileToImageItem(file));
+    imageItems.push(await fileToMediaItem(file));
   }
   if (imageItems.length) addImageItems(imageItems);
   return imageItems.length;
 }
 
-function fileToImageItem(file) {
+function fileToMediaItem(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve({ id: crypto.randomUUID(), dataUrl: reader.result, name: file.name, type: file.type });
+    reader.onload = () => resolve({
+      id: crypto.randomUUID(),
+      dataUrl: reader.result,
+      name: file.name,
+      type: file.type,
+      mediaType: file.type ? mediaKindFromMime(file.type) : mediaKindFromUrl(file.name)
+    });
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
@@ -813,7 +933,8 @@ function blobToImageItem(blob, type) {
       id: crypto.randomUUID(),
       dataUrl: reader.result,
       name: `clipboard-${Date.now()}.${guessImageExtension(type)}`,
-      type
+      type,
+      mediaType: "image"
     });
     reader.onerror = reject;
     reader.readAsDataURL(blob);
@@ -828,7 +949,17 @@ function guessImageExtension(type) {
 }
 
 function addUrlImages(urls) {
-  addImageItems(Array.from(new Set(urls.filter(Boolean))).map((url) => ({ id: crypto.randomUUID(), url })));
+  const unique = new Map();
+  for (const item of urls || []) {
+    const url = typeof item === "string" ? item : item?.url;
+    if (!url || unique.has(url)) continue;
+    unique.set(url, {
+      id: crypto.randomUUID(),
+      url,
+      mediaType: typeof item === "string" ? mediaKindFromUrl(url) : item.mediaType || mediaKindFromUrl(url)
+    });
+  }
+  addImageItems(Array.from(unique.values()));
 }
 
 function addImageItems(items) {
@@ -858,11 +989,28 @@ function renderImages() {
     card.draggable = true;
     card.dataset.id = image.id;
 
-    const img = document.createElement("img");
-    img.src = image.dataUrl || image.url;
-    img.alt = t("imageAlt");
-    img.title = image.name || image.url || t("imageAlt");
-    img.addEventListener("click", () => openPreview(img.src));
+    const mediaSrc = image.dataUrl || image.url;
+    const isVideo = isVideoMedia(image);
+    const preview = document.createElement(isVideo ? "video" : "img");
+    preview.src = mediaSrc;
+    preview.title = image.name || image.url || t("imageAlt");
+    preview.addEventListener("click", () => {
+      if (isVideo) return;
+      openPreview(mediaSrc);
+    });
+    if (isVideo) {
+      preview.muted = true;
+      preview.playsInline = true;
+      preview.preload = "metadata";
+      preview.title = image.name || image.url || t("videoAlt");
+      preview.setAttribute("aria-label", t("videoAlt"));
+      const badge = document.createElement("span");
+      badge.className = "media-badge";
+      badge.textContent = "VIDEO";
+      card.append(badge);
+    } else {
+      preview.alt = t("imageAlt");
+    }
 
     const remove = document.createElement("button");
     remove.type = "button";
@@ -888,9 +1036,36 @@ function renderImages() {
       clearSortTargets();
       card.classList.remove("dragging");
     });
-    card.append(img, remove);
+    card.append(preview, remove);
     imageList.append(card);
   });
+}
+
+function isSupportedMediaFile(file) {
+  return file.type.startsWith("image/") || file.type.startsWith("video/") || /\.(png|jpe?g|webp|gif|mp4|webm|mov|m4v|ogg|ogv)$/i.test(file.name || "");
+}
+
+function mediaKindFromMime(type = "") {
+  return type.startsWith("video/") ? "video" : "image";
+}
+
+function mediaKindFromUrl(url = "") {
+  const raw = String(url);
+  if (/\.(mp4|webm|mov|m4v|ogg|ogv)(?:\?|#|$)/i.test(raw)) return "video";
+  if (/(?:format|mime|type)=(?:video|mp4|webm|mov|m4v|ogg|ogv)/i.test(raw)) return "video";
+  return "image";
+}
+
+function isVideoMedia(item) {
+  return item?.mediaType === "video" || String(item?.type || "").startsWith("video/") || mediaKindFromUrl(item?.url || item?.name || "") === "video";
+}
+
+function isUsableMediaUrl(url, strict = false) {
+  if (!/^(https?:|data:)/i.test(url)) return false;
+  if (/^data:/i.test(url)) return /^data:(image|video)\//i.test(url);
+  if (!strict) return true;
+  if (/\.(png|jpe?g|webp|gif|mp4|webm|mov|m4v|ogg|ogv)(?:\?|#|$)/i.test(url)) return true;
+  return /(?:format|mime|type)=(?:image|video|jpg|jpeg|png|webp|gif|mp4|webm)/i.test(url);
 }
 
 function getDropIndex(clientX, clientY) {
@@ -954,7 +1129,7 @@ function setStatus(message, ok = false) {
   status.classList.toggle("ok", ok);
 }
 
-function showToast(message, ok = true) {
+function showToast(message, ok = true, duration = 2200) {
   clearTimeout(toastTimer);
   toast.textContent = message;
   toast.classList.toggle("error", !ok);
@@ -970,7 +1145,7 @@ function showToast(message, ok = true) {
       toast.hidden = true;
       toastTimer = null;
     }, 200);
-  }, 1600);
+  }, duration);
 }
 
 function positionToast() {

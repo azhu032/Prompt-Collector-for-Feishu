@@ -44,7 +44,7 @@
             <span data-i18n="tagLabel">标签</span>
             <button id="toggleTagPicker" class="add-tag-button" type="button" data-i18n-title="addTagTitle" title="添加标签">+</button>
           </div>
-          <div id="tagList" class="tag-list"></div>
+          <div id="tagList" class="tag-list" role="button" tabindex="0" data-i18n-title="addTagTitle" title="添加标签"></div>
           <div id="tagPicker" class="tag-picker" hidden></div>
         </section>
 
@@ -54,7 +54,7 @@
               <span data-i18n="modelLabel">生图模型</span>
               <button id="toggleModelPicker" class="add-model-button" type="button" data-i18n-title="addModelTitle" title="选择生图模型">+</button>
             </span>
-            <input id="model" type="text" data-i18n-placeholder="autoDetect" placeholder="自动识别" readonly>
+            <input id="model" type="text" data-i18n-placeholder="autoDetect" placeholder="点击进行选择" readonly>
             <div id="modelPicker" class="model-picker" hidden></div>
           </label>
           <label class="field">
@@ -78,7 +78,7 @@
           </span>
         </div>
         <div id="dropZone" class="drop-zone">
-          <input id="imageFileInput" type="file" accept="image/*" multiple hidden>
+          <input id="imageFileInput" type="file" accept="image/*,video/*" multiple hidden>
           <div id="imagePreview" class="image-list"></div>
           <p class="drop-hint" data-i18n="dropHint">本地图片可拖到这里。点侧栏进入常驻模式后，可从网页直接拖图；拖动缩略图可排序。</p>
         </div>

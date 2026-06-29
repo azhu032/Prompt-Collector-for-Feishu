@@ -15,7 +15,7 @@ const DEFAULT_CONFIG = {
   },
   optionLists: {
     tags: [],
-    models: ["GPT Image", "Midjourney", "Stable Diffusion"]
+    models: []
   },
   ocr: {
     endpoint: "",
@@ -80,12 +80,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 
     if (message.type === "SYNC_TAG_OPTIONS_FROM_FEISHU") {
-      sendResponse(await syncTagOptionsFromFeishu());
+      sendResponse(await syncTagOptionsFromFeishu(message.config || null));
       return;
     }
 
     if (message.type === "SYNC_MODEL_OPTIONS_FROM_FEISHU") {
-      sendResponse(await syncModelOptionsFromFeishu());
+      sendResponse(await syncModelOptionsFromFeishu(message.config || null));
       return;
     }
 
@@ -466,7 +466,7 @@ async function savePromptRecord(input) {
   });
 
   const recordId = created?.data?.record?.record_id || created?.data?.record_id;
-  const attachmentReport = await maybeUploadReferenceImages(config, token, recordId, data.images);
+  const attachmentReport = await maybeUploadReferenceMedia(config, token, recordId, data.images);
 
   return {
     ok: true,
@@ -489,40 +489,40 @@ function buildFeishuTableUrl(config) {
   return `https://www.feishu.cn/base/${encodeURIComponent(config.appToken)}?table=${encodeURIComponent(config.tableId)}`;
 }
 
-async function maybeUploadReferenceImages(config, token, recordId, images = []) {
+async function maybeUploadReferenceMedia(config, token, recordId, images = []) {
   if (!recordId || !images.length) return { uploaded: false, message: "已保存到飞书表格。" };
 
   try {
     const fields = await listFields(config, token);
     const attachmentField = fields.find((field) => field.field_name === config.fieldNames.referenceImage);
     if (!attachmentField) {
-      return { uploaded: false, message: "已保存文字内容；没有找到参考图字段 ID，图片未上传。" };
+      return { uploaded: false, message: "已保存文字内容；没有找到参考素材字段 ID，附件未上传。" };
     }
     if (!isAttachmentField(attachmentField)) {
-      return { uploaded: false, message: "已保存文字内容；参考图字段不是附件类型，图片未上传。" };
+      return { uploaded: false, message: "已保存文字内容；参考素材字段不是附件类型，附件未上传。" };
     }
 
     const fileTokens = [];
     const uploadErrors = [];
-    for (const image of images.slice(0, 6)) {
+    for (const media of images.slice(0, 6)) {
       try {
-        const fileToken = await uploadBitableMedia(config, token, image);
+        const fileToken = await uploadBitableMedia(config, token, media);
         fileTokens.push(fileToken);
       } catch (error) {
-        console.warn("Reference image upload failed:", image, error);
+        console.warn("Reference media upload failed:", media, error);
         uploadErrors.push(error.message || "未知错误");
       }
     }
 
     if (fileTokens.length) {
       await updateRecordAttachments(config, token, recordId, attachmentField.field_name, fileTokens);
-      const suffix = uploadErrors.length ? ` 另有 ${uploadErrors.length} 张失败：${uploadErrors[0]}` : "";
-      return { uploaded: true, message: `已保存到飞书表格，并上传 ${fileTokens.length} 张参考图。${suffix}` };
+      const suffix = uploadErrors.length ? ` 另有 ${uploadErrors.length} 个附件失败：${uploadErrors[0]}` : "";
+      return { uploaded: true, message: `已保存到飞书表格，并上传 ${fileTokens.length} 个参考素材。${suffix}` };
     }
-    return { uploaded: false, message: `已保存文字内容；参考图下载或上传失败：${uploadErrors[0] || "没有可上传的图片"}` };
+    return { uploaded: false, message: `已保存文字内容；参考素材下载或上传失败：${uploadErrors[0] || "没有可上传的素材"}` };
   } catch (error) {
     console.warn("Attachment lookup failed:", error);
-    return { uploaded: false, message: "已保存文字内容；参考图附件上传未完成。" };
+    return { uploaded: false, message: "已保存文字内容；参考素材附件上传未完成。" };
   }
 }
 
@@ -542,25 +542,28 @@ async function getBaseField(config, token, field) {
   }
 }
 
-async function syncTagOptionsFromFeishu() {
+async function syncTagOptionsFromFeishu(configPatch = null) {
   return syncConfiguredOptionsFromFeishu({
     configKey: "tags",
     fieldName: "tags",
-    label: "标签"
+    label: "标签",
+    configPatch
   });
 }
 
-async function syncModelOptionsFromFeishu() {
+async function syncModelOptionsFromFeishu(configPatch = null) {
   return syncConfiguredOptionsFromFeishu({
     configKey: "models",
     fieldName: "model",
-    label: "生图模型"
+    label: "生图模型",
+    configPatch
   });
 }
 
-async function syncConfiguredOptionsFromFeishu({ configKey, fieldName, label }) {
+async function syncConfiguredOptionsFromFeishu({ configKey, fieldName, label, configPatch = null }) {
   try {
-    const config = await getConfig();
+    const storedConfig = await getConfig();
+    const config = configPatch ? mergeConfig(storedConfig, configPatch) : storedConfig;
     validateConfig(config);
     const token = await getTenantAccessToken(config);
     const fields = await listFields(config, token);
@@ -570,20 +573,11 @@ async function syncConfiguredOptionsFromFeishu({ configKey, fieldName, label }) 
 
     const fullField = await getBaseField(config, token, targetField);
     const remoteOptions = extractSelectOptions(fullField).length ? extractSelectOptions(fullField) : extractSelectOptions(targetField);
-    if (!remoteOptions.length) {
-      return {
-        ok: true,
-        synced: false,
-        options: normalizeOptionList(config.optionLists?.[configKey] || []),
-        message: `飞书${label}字段暂无可同步的选项。`
-      };
-    }
-
     const syncedOptions = normalizeOptionList(remoteOptions);
     await chrome.storage.local.set({
-      config: mergeConfig(config, {
+      config: mergeConfig(storedConfig, {
         optionLists: {
-          ...config.optionLists,
+          ...storedConfig.optionLists,
           [configKey]: syncedOptions
         }
       })
@@ -593,7 +587,7 @@ async function syncConfiguredOptionsFromFeishu({ configKey, fieldName, label }) 
       ok: true,
       synced: true,
       options: syncedOptions,
-      message: `已从飞书同步 ${remoteOptions.length} 个${label}选项。`
+      message: syncedOptions.length ? `已从飞书同步 ${syncedOptions.length} 个${label}选项。` : `飞书${label}字段暂无可同步的选项。`
     };
   } catch (error) {
     const config = await getConfig().catch(() => DEFAULT_CONFIG);
@@ -638,15 +632,15 @@ function isAttachmentField(field) {
   return Number(field?.type) === 17 || String(field?.ui_type || "").toLowerCase() === "attachment";
 }
 
-async function uploadBitableMedia(config, token, image) {
-  const { blob, name } = await imageToBlob(image);
-  if (!blob.size) throw new Error("图片为空。");
-  if (blob.size > 20 * 1024 * 1024) throw new Error("图片超过 20MB，暂不支持上传。");
+async function uploadBitableMedia(config, token, media) {
+  const { blob, name } = await mediaToBlob(media);
+  if (!blob.size) throw new Error("素材为空。");
+  if (blob.size > 20 * 1024 * 1024) throw new Error("素材超过 20MB，暂不支持上传。");
 
-  const extension = guessImageExtension(blob.type, name || image.url || "");
+  const extension = guessMediaExtension(blob.type, name || media.url || "");
   const fileName = name || `reference-${Date.now()}.${extension}`;
   const file = new File([blob], fileName, {
-    type: blob.type || "image/jpeg"
+    type: blob.type || "application/octet-stream"
   });
 
   const form = new FormData();
@@ -676,28 +670,32 @@ async function updateRecordAttachments(config, token, recordId, fieldName, fileT
   });
 }
 
-async function imageToBlob(image) {
-  if (typeof image === "string") image = { url: image };
+async function mediaToBlob(media) {
+  if (typeof media === "string") media = { url: media };
 
-  if (image.dataUrl) {
-    const response = await fetch(image.dataUrl);
-    return { blob: await response.blob(), name: image.name };
+  if (media.dataUrl) {
+    const response = await fetch(media.dataUrl);
+    return { blob: await response.blob(), name: media.name };
   }
 
-  if (image.url) {
-    const response = await fetch(image.url, { credentials: "omit" });
-    if (!response.ok) throw new Error(`图片下载失败：${response.status}`);
-    return { blob: await response.blob(), name: image.name };
+  if (media.url) {
+    const response = await fetch(media.url, { credentials: "omit" });
+    if (!response.ok) throw new Error(`素材下载失败：${response.status}`);
+    return { blob: await response.blob(), name: media.name };
   }
 
-  throw new Error("图片来源无效。");
+  throw new Error("素材来源无效。");
 }
 
-function guessImageExtension(mime, url) {
+function guessMediaExtension(mime, url) {
+  if (mime?.includes("mp4")) return "mp4";
+  if (mime?.includes("webm")) return "webm";
+  if (mime?.includes("quicktime")) return "mov";
+  if (mime?.includes("ogg")) return "ogv";
   if (mime?.includes("png")) return "png";
   if (mime?.includes("webp")) return "webp";
   if (mime?.includes("gif")) return "gif";
-  const match = String(url).match(/\.(png|jpe?g|webp|gif)(?:\?|#|$)/i);
+  const match = String(url).match(/\.(png|jpe?g|webp|gif|mp4|webm|mov|m4v|ogg|ogv)(?:\?|#|$)/i);
   return match ? match[1].replace("jpeg", "jpg").toLowerCase() : "jpg";
 }
 

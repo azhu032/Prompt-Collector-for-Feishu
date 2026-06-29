@@ -241,6 +241,18 @@ textarea:focus {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.tag-list:hover {
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.tag-list:focus {
+  border-color: rgba(10, 132, 255, 0.72);
+  box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.14);
 }
 
 .tag-empty {
@@ -367,12 +379,32 @@ textarea:focus {
   outline-offset: 2px;
 }
 
-.image-card img {
+.image-card img,
+.image-card video {
   display: block;
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
   background: #edf4fb;
+}
+
+.image-card video {
+  pointer-events: none;
+}
+
+.media-badge {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  z-index: 1;
+  border-radius: 999px;
+  padding: 4px 6px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 760;
+  line-height: 1;
+  letter-spacing: 0;
 }
 
 .image-card button {
@@ -591,13 +623,16 @@ button {
 
 .add-tag-button,
 .add-model-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 27px;
   height: 27px;
   padding: 0;
   border-radius: 999px;
   color: var(--accent);
   font-size: 18px;
-  line-height: 24px;
+  line-height: 1;
 }
 
 .side-mode .topbar {
