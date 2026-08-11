@@ -2,7 +2,11 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security issue, please avoid publishing sensitive details, credentials, API keys, or access tokens in a public Issue.
+If you discover a security vulnerability, please do not disclose it in a public Issue.
+
+Please use GitHub's private vulnerability reporting feature:
+
+Security → Advisories → Report a vulnerability
 
 Security-sensitive areas include:
 
@@ -13,8 +17,8 @@ Security-sensitive areas include:
 - Web page content extraction
 - Local storage of configuration and credentials
 
-Please report security issues to the maintainer through GitHub with enough information to reproduce the issue, while removing any real credentials or private data.
+Please remove any real credentials, API keys, tokens, or private user data from reports and reproduction examples.
 
 ## Supported Version
 
-Security fixes currently target the latest version of the project.
+Security fixes currently target the latest released version of the project.
