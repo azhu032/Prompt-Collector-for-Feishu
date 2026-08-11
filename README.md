@@ -35,11 +35,9 @@ Prompt Collector for Feishu 是一个用于收集 AI 生图提示词的浏览器
 
 ### License
 
-Released under CC BY-NC-ND 4.0.
+本项目采用 [Apache License 2.0](LICENSE) 开源许可证。
 
-For personal non-commercial use only. No commercial use, no derivative redistribution.
-
-仅个人非商业免费使用，禁止商用、禁止二次修改分发。
+允许使用、修改和分发本项目，包括商业使用，但须遵守 Apache License 2.0 的相关条款。
 
 ---
 
@@ -55,11 +53,9 @@ See [使用教程.docx](./使用教程.docx) for the detailed setup guide.
 
 ### License
 
-Released under CC BY-NC-ND 4.0.
+This project is licensed under the [Apache License 2.0](LICENSE).
 
-For personal non-commercial use only. No commercial use, no derivative redistribution.
-
-仅个人非商业免费使用，禁止商用、禁止二次修改分发。
+You may use, modify, and distribute this project, including for commercial purposes, subject to the terms of the Apache License 2.0.
 
 ---
 
@@ -75,8 +71,6 @@ Prompt Collector for Feishu は、AI 画像生成プロンプトを収集する�
 
 ### License
 
-Released under CC BY-NC-ND 4.0.
+このプロジェクトは [Apache License 2.0](LICENSE) の下で公開されています。
 
-For personal non-commercial use only. No commercial use, no derivative redistribution.
-
-仅个人非商业免费使用，禁止商用、禁止二次修改分发。
+Apache License 2.0 の条件に従い、商用利用を含む使用、改変、再配布が可能です。
